@@ -1,0 +1,165 @@
+Steps to add .sql file into Dockercompose in ubuntu :
+ 
+cd /root       -->    to open root folder in linux     :
+mkdir tr
+vi docker-compose.yml ->to open the Terminal press Esc key,then Shift+:+wq to save         :
+docker-compose logs -> To check the logs               :
+
+Dockercompose file : To add .sql file 
+============================================
+
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: '1234'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '3090:3090'
+    expose:
+      # Opens port 3306 on the container
+      - '3090'
+      # Where our data will be persisted
+    volumes:
+      - my-db:/var/lib/mysql
+      # Names our volume
+volumes:
+  my-db:
+  
+  
+docker-compose up -d    ->to Run the docker-compose file :
+docker ps               to see running container :
+Dockerfile :
+vi Dockerfile   ->to open editor ,to write Dockerfile     :
+
+FROM mysql:5.7
+ADD AiqBaseScript.sql/ docker-entrypoint-initdb.d
+ADD AIQConfig.sql /docker-entrypoint-initdb.d
+
+ENV MYSQL_DATABASE Atq
+ENV MYSQL_USER root
+ENV MYSQL_USER root
+ENV MYSQL_ROOT_PASSWORD 1234
+EXPOSE 3078
+
+BaseScript.sql :
+vi AiqBaseScript.sql     ->to open editor to save the .sql file :
+
+CREATE TABLE `QRTZ_CALENDARS` (
+  `SCHED_NAME` varchar(120) NOT NULL,
+  `CALENDAR_NAME` varchar(200) NOT NULL,
+  `CALENDAR` blob NOT NULL,
+  PRIMARY KEY (`SCHED_NAME`,`CALENDAR_NAME`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+AIQConfig.sql :   (This is not mandatory to save )
+vi AIQConfig.sql  ->to open editor :
+
+SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
+
+set global max_connections=3000;
+
+docker build -t root_db_1 .   ->To build the Dockerfile :
+docker images   -> To check the created images :
+
+REPOSITORY   TAG        IMAGE ID         CREATED             SIZE
+root_db_1    latest     01dc4f14f899     2 minutes ago       455MB
+docker run --name pal -p3306:3306 -d root_db_1 
+docker exec -it pal /bin/bash   To Execute inside the container :
+root@dc3b9315f26e:/# mysql -uroot -p1234     ---->    :
+show databases;
+
+
+show tables;
+show columns from QRTZ_CALENDARS;
+select * from QRTZ_CALENDARS;
+
+To Add Maximum connection on mysql :
+cd /root (in linux machine)     :
+vi docker-compose.yml (Open Editor ,press escape ,then Shift+:+wq to save)
+   Dockercompose file :-
+   ==========================================
+version: '2'
+services:
+  my-db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: '1234'
+      MYSQL_DATABASE: 'dbry'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '3076:3076'
+    expose:
+      # Opens port 3306 on the container
+      - '3076'
+      # Where our data will be persisted
+    volumes:
+      - /my-db:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf
+ 
+ vi my.cnf :(to save press esc +shift+ :)enter wq
+ my.cnf :
+ ============
+ !includedir /etc/mysql/conf.d/ 
+ !includedir /etc/mysql/mysql.conf.d/ 
+ [mysqld] 
+  max_connections=3000   
+  
+  docker-compose up -d     :
+  docker-compose logs  (To see the logs )
+  
+  docker ps          :
+  
+  docker exec -it dc3b9315f26e /bin/bash   -> To connect to Mysql :
+  root@dc3b9315f26e:/# mysql -uroot -p1234
+  show variables like "max_connections";
++-----------------+-------+
+| Variable_name   | Value |
++-----------------+-------+
+| max_connections | 1000  |
++-----------------+-------+
+1 row in set (0.01 sec)
+
+To Change the sql mode in mysql :
+
+vi my.cnf
+--------------
+Same Docker-compose.yml prev 
+ 
+[mysqld]
+sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+
+docker-compose up -d
+docker ps
+docker exec -it <containerid> /bin/bash 
+root@798998f79130:/# mysql -uroot -p1234
+SELECT @@sql_mode;
+ 
+ my.cnf file to run both max_connections and sql_mode :
+ 
+[mysqld]
+sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
+ max_connections=3000 
+ 
+ version: '2'
+ services:
+  my-db:
+    image: 'mysql:5.7'
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: '1234'
+      MYSQL_DATABASE: 'dbry'
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      - '3076:3076'
+    expose:
+      # Opens port 3306 on the container
+      - '3076'
+      # Where our data will be persisted
+    volumes:
+      - /my-db:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf
+	  
