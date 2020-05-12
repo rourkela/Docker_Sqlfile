@@ -1,11 +1,12 @@
-Steps to add .sql file into Dockercompose in ubuntu :
+✅ Steps to add .sql file into Dockercompose in ubuntu :
+  =======================================================
  
-cd /root       -->    to open root folder in linux     :
+cd /root       -->    to open root folder in linux  Env   :
 mkdir tr
-vi docker-compose.yml ->to open the Terminal press Esc key,then Shift+:+wq to save         :
+vi docker-compose.yml ->to open the Terminal press ↪ Esc key,then Shift+:+wq to save         :
 docker-compose logs -> To check the logs               :
 
-Dockercompose file : To add .sql file 
+▰ Dockercompose file : To add .sql file 
 ============================================
 
 version: '2'
@@ -29,11 +30,12 @@ volumes:
   my-db:
   
   
-docker-compose up -d    ->to Run the docker-compose file :
-docker ps               to see running container :
-Dockerfile :
-vi Dockerfile   ->to open editor ,to write Dockerfile     :
+▶ docker-compose up -d    ↪ To Run the docker-compose file 
+▶ docker ps               ↪ to see running container 
 
+▶ vi Dockerfile          ↪to open editor ,to write Dockerfile (press Shift+insert to paste data),then Esc,Shift+:+wq (To save data) 
+     ●  Dockerfile :
+      ==================
 FROM mysql:5.7
 ADD AiqBaseScript.sql/ docker-entrypoint-initdb.d
 ADD AIQConfig.sql /docker-entrypoint-initdb.d
@@ -45,7 +47,8 @@ ENV MYSQL_ROOT_PASSWORD 1234
 EXPOSE 3078
 
 BaseScript.sql :
-vi AiqBaseScript.sql     ->to open editor to save the .sql file :
+=====================
+▶ vi AiqBaseScript.sql     ->to open (vi) editor to save the .sql file 
 
 CREATE TABLE `QRTZ_CALENDARS` (
   `SCHED_NAME` varchar(120) NOT NULL,
@@ -54,32 +57,29 @@ CREATE TABLE `QRTZ_CALENDARS` (
   PRIMARY KEY (`SCHED_NAME`,`CALENDAR_NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-AIQConfig.sql :   (This is not mandatory to save )
-vi AIQConfig.sql  ->to open editor :
-
+▰ AIQConfig.sql :   (This is not mandatory to save )
+vi AIQConfig.sql  -> to open editor :
 SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));
-
 set global max_connections=3000;
 
-docker build -t root_db_1 .   ->To build the Dockerfile :
-docker images   -> To check the created images :
+▶ docker build -t root_db_1 .   -> To build the Dockerfile 
+▶ docker images   -> To check the created images :
 
 REPOSITORY   TAG        IMAGE ID         CREATED             SIZE
 root_db_1    latest     01dc4f14f899     2 minutes ago       455MB
-docker run --name pal -p3306:3306 -d root_db_1 
-docker exec -it pal /bin/bash   To Execute inside the container :
+▶ docker run --name pal -p3306:3306 -d root_db_1 
+▶ docker exec -it pal /bin/bash   To Execute inside the container :
 root@dc3b9315f26e:/# mysql -uroot -p1234     ---->    :
-show databases;
+▶show databases;
+▶show tables;
+▶show columns from QRTZ_CALENDARS;
+▶select * from QRTZ_CALENDARS;
 
-
-show tables;
-show columns from QRTZ_CALENDARS;
-select * from QRTZ_CALENDARS;
-
-To Add Maximum connection on mysql :
+✅ To Add Maximum connection on mysql :
+    ====================================
 cd /root (in linux machine)     :
-vi docker-compose.yml (Open Editor ,press escape ,then Shift+:+wq to save)
-   Dockercompose file :-
+▶ vi docker-compose.yml (Open Editor ,press escape ,then Shift+:+wq to save)
+▰   Dockercompose file :-
    ==========================================
 version: '2'
 services:
@@ -101,21 +101,21 @@ services:
       - ./my.cnf:/etc/mysql/my.cnf
  
  vi my.cnf :(to save press esc +shift+ :)enter wq
- my.cnf :
+ ▰ my.cnf :
  ============
  !includedir /etc/mysql/conf.d/ 
  !includedir /etc/mysql/mysql.conf.d/ 
  [mysqld] 
   max_connections=3000   
   
-  docker-compose up -d     :
-  docker-compose logs  (To see the logs )
+▶  docker-compose up -d     :
+▶  docker-compose logs  (To see the logs )
   
-  docker ps          :
+▶  docker ps          :
   
-  docker exec -it dc3b9315f26e /bin/bash   -> To connect to Mysql :
+ ▶ docker exec -it dc3b9315f26e /bin/bash   -> To connect to Mysql :
   root@dc3b9315f26e:/# mysql -uroot -p1234
-  show variables like "max_connections";
+▶  show variables like "max_connections";
 +-----------------+-------+
 | Variable_name   | Value |
 +-----------------+-------+
@@ -123,27 +123,30 @@ services:
 +-----------------+-------+
 1 row in set (0.01 sec)
 
-To Change the sql mode in mysql :
+✅  To Change the sql mode in mysql :
+=============================================
 
-vi my.cnf
---------------
-Same Docker-compose.yml prev 
- 
+▰ Docker-compose.yml prev 
+▰  vi my.cnf
+-------------------
 [mysqld]
 sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
 
-docker-compose up -d
-docker ps
-docker exec -it <containerid> /bin/bash 
+▶docker-compose up -d
+▶docker ps
+▶docker exec -it <containerid> /bin/bash 
 root@798998f79130:/# mysql -uroot -p1234
-SELECT @@sql_mode;
+▶SELECT @@sql_mode;
  
- my.cnf file to run both max_connections and sql_mode :
- 
+✅ my.cnf file to run both max_connections and sql_mode :-
+==============================================================
+           (CONTENT OF MY.CNF FILE)
 [mysqld]
 sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
  max_connections=3000 
  
+ ▰ Docker-compose.yml 
+ -----------------------------
  version: '2'
  services:
   my-db:
